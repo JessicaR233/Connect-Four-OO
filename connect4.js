@@ -14,6 +14,7 @@ class Game {
     // to make makeBoard() makeHtmlBoard() call instantly after create new Game
     this.makeBoard();
     this.makeHtmlBoard();
+    this.gameOver = false;
   }
 
 
@@ -84,7 +85,8 @@ findSpotForCol(x) {
 placeInTable(y, x) {
   const piece = document.createElement('div');
   piece.classList.add('piece');
-  piece.classList.add(`p${this.currPlayer}`);
+  // piece.classList.add(`p${this.currPlayer}`);
+  piece.style.backgroundColor = this.currPlayer.color;
   piece.style.top = -50 * (y + 2);
 
   const spot = document.getElementById(`${y}-${x}`);
@@ -95,6 +97,8 @@ placeInTable(y, x) {
 
 endGame(msg) {
   alert(msg);
+  const top = document.querySelector("#column-top");
+  top.removeEventListener("click", this.handleGameClick);
 }
 
 /** handleClick: handle click of column top to play piece */
@@ -115,7 +119,7 @@ handleClick(evt) {
   
   // check for win
   if (this.checkForWin()) {
-    return this.endGame(`Player ${currPlayer} won!`);
+    return this.endGame(`The ${this.currPlayer.color} player won!`);
   }
   
   // check for tie
@@ -124,13 +128,15 @@ handleClick(evt) {
   }
     
   // switch players
-  currPlayer = currPlayer === 1 ? 2 : 1;
+  // this.currPlayer = this.currPlayer === 1 ? 2 : 1;
+  this.currPlayer =
+      this.currPlayer === this.players[0] ? this.players[1] : this.players[0];
 }
 
 /** checkForWin: check board cell-by-cell for "does a win start here?" */
 
 checkForWin() {
-  function _win(cells) {
+  const _win =(cells) => {
     // Check four cells to see if they're all color of current player
     //  - cells: list of four (y, x) cells
     //  - returns true if all are legal coordinates & all match currPlayer
@@ -165,5 +171,13 @@ checkForWin() {
 }
 
 document.getElementById('start-game').addEventListener('click', function()  {
-  new Game();
+  let p1 = new Player(document.getElementById('p1-color').value);
+  let p2 = new Player(document.getElementById('p2-color').value);
+  new Game(p1,p2);
 })
+
+class Player {
+  constructor(color)  {
+    this.color = color;
+  }
+}
